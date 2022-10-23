@@ -85,33 +85,29 @@
 //     </div>
 //   )
 // }
+
+//this index file is working with the redux project from developedbyed-video
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-// import reportWebVitals from './reportWebVitals';
-import { createStore } from 'redux'
-
-
-// Action -> e.g., INCREMENT: an action that returns an obj {type:}
-const actionIncrement = () => {
-  return { type: "Increment" }
-}
-
-const actionDecrement = () => {
-  return { type: "Decrement" }
-}
-
-//REDUCER -> definde how a certain action changes the state:take 2 params: current state, action
-const ReducerCounter = (state = 0, action) => {
-  switch (action.type) {
-    case "Increment": return state + 1;
-    case "Decrement": return state - 1;
-  }
-}
+import reportWebVitals from './reportWebVitals';
+import { createStore } from 'redux';
+import allReducers from './reducers';
+import { Provider } from 'react-redux'
 
 //Store -> Globalized state: pass in a reducer
-const store = createStore(ReducerCounter)
+const rootStore = createStore(allReducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
+  <Provider store={rootStore} >
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  </Provider>
+);
 
 //dispaly it in the console:
 // const consoleState = () => {
@@ -120,31 +116,19 @@ const store = createStore(ReducerCounter)
 // }
 // store.subscribe(consoleState)
 
-store.subscribe(() => {
-  const storeNow = store.getState()
-  console.log(storeNow)
-})
+// store.subscribe(() => {
+//   const storeNow = store.getState()
+//   console.log(storeNow)
+// })
+// const root = ReactDOM.createRoot(document.getElementById('root'));
 
-//DISPATCH
-store.dispatch(actionIncrement())
-store.dispatch(actionIncrement())
-store.dispatch(actionIncrement())
-store.dispatch(actionIncrement())
-
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-// const renderApp = () => root.render(<App />)
-// renderApp()
-// StorageEvent.subscribe(renderApp)
-
-
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// root.render(
+//   <React.StrictMode>
+//     <App />
+//   </React.StrictMode>
+// );
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-// reportWebVitals();
+reportWebVitals();
