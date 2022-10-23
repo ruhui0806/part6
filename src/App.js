@@ -2,16 +2,46 @@
 import './App.css';
 
 import React from 'react';
-import NewNote from './components/NewNote';
-import Notes from './components/Notes';
+
+//npm install react-redux firstly
+import { useSelector, useDispatch } from 'react-redux'
+import { createNote, toggleImportanceOf } from './actions'
 
 //App component--> should move to the file App.js
 const App = () => {
+  const notes = useSelector(state => state)
+  const dispatch = useDispatch()
+
+  const addNote = (event) => {
+    event.preventDefault()
+    // use the user's input value as the note's content
+    const content = event.target.note.value
+    //create new note:
+    event.target.note.value = ""
+    dispatch(createNote(content))
+  }
+
+  const toggleImportance = (id) => {
+    dispatch(toggleImportanceOf(id))
+  }
+
 
   return (
     <div>
-      <NewNote />
-      <Notes />
+      <form onSubmit={addNote}>
+        <input name="note" />
+        <button type="submit">add</button>
+      </form>
+      <ul>
+        {notes.map(note =>
+          <li
+            key={note.id}
+            onClick={() => toggleImportance(note.id)}
+          >
+            {note.content} <strong>{note.important ? 'important' : ''}</strong>
+          </li>
+        )}
+      </ul>
     </div>
   )
 }
