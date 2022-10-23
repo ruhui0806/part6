@@ -5,7 +5,7 @@ import React from 'react';
 
 //npm install react-redux firstly
 import { useSelector, useDispatch } from 'react-redux'
-import { Increment, Decrement, SignIn, SignOut } from './actions'
+import { Increment, Decrement, SignIn, SignOut } from '../actions'
 
 function App() {
   const counter = useSelector(state => state.counter)

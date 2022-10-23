@@ -1,4 +1,4 @@
-import { toggleImportanceOf } from "../actions"
+import { toggleImportanceOf } from "../../actions"
 import { useDispatch, useSelector } from "react-redux"
 
 const Notes = () => {
