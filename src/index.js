@@ -8,6 +8,7 @@ import App from './App';
 import { noteReducer } from './reducers/noteReducer'
 
 
+//move noteReducer to its own component
 // const noteReducer = (state = [], action) => {
 //   switch (action.type) {
 //     case 'NEW_NOTE':
