@@ -40,6 +40,13 @@ export const toggleImportanceOf = (id) => {
     }
 }
 
+// export const filterChange = (filter) => {
+//     return {
+//         type: 'SET_FILTER',
+//         filter,
+//     }
+// }
+
 
 
 

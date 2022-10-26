@@ -5,8 +5,9 @@ import reportWebVitals from './reportWebVitals';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux'
 import App from './App';
-import { noteReducer } from './reducers/noteReducer'
-
+import { allReducers } from './reducers/index'
+import { createNote } from './reducers/noteReducer'; //action
+import { filterChange } from './reducers/filterReducer'; //action
 
 //move noteReducer to its own component
 // const noteReducer = (state = [], action) => {
@@ -29,8 +30,12 @@ import { noteReducer } from './reducers/noteReducer'
 //   }
 // }
 
-const rootStore = createStore(noteReducer)
 
+const rootStore = createStore(allReducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
+console.log("getState via console.log: ", rootStore.getState())
+rootStore.subscribe(() => console.log("getState via subscribe ", rootStore.getState()))
+rootStore.dispatch(filterChange('IMPORTANT'))
+rootStore.dispatch(createNote('combineReducers forms one reducer from many simple reducers'))
 
 // index part, remain here:
 const root = ReactDOM.createRoot(document.getElementById('root'));
