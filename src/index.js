@@ -7,30 +7,10 @@ import { Provider } from 'react-redux'
 import App from './App';
 // import { allReducers } from './reducers/index'
 import { configureStore } from '@reduxjs/toolkit';
-import noteReducer from './reducers/noteReducer'
+import noteReducer, { appendNotes, setNotes } from './reducers/noteReducer'
 import { filterReducer } from "./reducers/filterReducer";
+import noteService from "./services/noteService"
 
-
-//move noteReducer to its own component
-// const noteReducer = (state = [], action) => {
-//   switch (action.type) {
-//     case 'NEW_NOTE':
-//       return state.concat(action.data)
-//     case 'TOGGLE_IMPORTANCE': {
-//       const id = action.data.id
-//       const noteToChange = state.find(n => n.id === id)
-//       const changedNote = {
-//         ...noteToChange,
-//         important: !noteToChange.important
-//       }
-//       return state.map(note =>
-//         note.id !== id ? note : changedNote
-//       )
-//     }
-//     default:
-//       return state
-//   }
-// }
 
 
 // const rootStore = createStore(allReducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
@@ -42,7 +22,8 @@ const rootStore = configureStore({
   }
 })
 
-console.log("getState via console.log: ", rootStore.getState())
+
+// console.log("getState via console.log: ", rootStore.getState())
 rootStore.subscribe(() => console.log("getState via subscribe ", rootStore.getState()))
 // rootStore.dispatch(filterChange('IMPORTANT'))
 // rootStore.dispatch(createNote('combineReducers forms one reducer from many simple reducers'))
