@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux"
-import { createNote } from "../actions"
+import { createNote } from "../reducers/noteReducer"
 
 const NewNote = (props) => {
     const dispatch = useDispatch()
@@ -9,7 +9,7 @@ const NewNote = (props) => {
         console.log(event.target)
         const content = event.target.note.value
 
-        event.target.note.value = ""
+        event.target.note.value = "" //empty the input place after add new note
         dispatch(createNote(content))//content is the action.dispatch
     }
 
