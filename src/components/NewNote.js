@@ -10,7 +10,7 @@ const NewNote = (props) => {
         const content = event.target.note.value
 
         event.target.note.value = ""
-        dispatch(createNote(content))
+        dispatch(createNote(content))//content is the action.dispatch
     }
 
 
