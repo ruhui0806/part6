@@ -5,8 +5,7 @@ import NewNote from './components/NewNote';
 import Notes from './components/Notes';
 import VisibilityFilter from './components/VisibilityFilter';
 import { useDispatch } from 'react-redux';
-import noteService from './services/noteService';
-import { setNotes } from './reducers/noteReducer';
+import { initializeNotes } from './reducers/noteReducer';
 
 
 //App component--> should move to the file App.js
@@ -16,10 +15,15 @@ import { setNotes } from './reducers/noteReducer';
 // noteService.getAll().then(notes => rootStore.dispatch(setNotes(notes)))
 
 const App = () => {
+  // useEffect(() => {
+  //   noteService
+  //     .getAll().then(notes => dispatch(setNotes(notes)))
+  // }, [dispatch])
+
   const dispatch = useDispatch()
+
   useEffect(() => {
-    noteService
-      .getAll().then(notes => dispatch(setNotes(notes)))
+    dispatch(initializeNotes())
   }, [dispatch])
 
   return (

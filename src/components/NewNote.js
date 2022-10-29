@@ -1,19 +1,16 @@
 import { useDispatch } from "react-redux"
 import { createNote } from "../reducers/noteReducer"
-import noteService from "../services/noteService"
 
-const NewNote = (props) => {
+
+const NewNote = () => {
     const dispatch = useDispatch()
 
     const addNote = async (event) => {
         event.preventDefault()
         const content = event.target.note.value
         event.target.note.value = ''
-        const newNote = await noteService.createNew(content)//add to the backend
-        dispatch(createNote(newNote))
+        dispatch(createNote(content))
     }
-
-
 
     return (
         <form onSubmit={addNote}>
