@@ -1,15 +1,14 @@
-import { useDispatch } from "react-redux"
+import { connect } from "react-redux"
 import { createNote } from "../reducers/noteReducer"
 
 
-const NewNote = () => {
-    const dispatch = useDispatch()
-
+const NewNote = (props) => {
+    // const dispatch = useDispatch()
     const addNote = async (event) => {
         event.preventDefault()
         const content = event.target.note.value
         event.target.note.value = ''
-        dispatch(createNote(content))
+        props.createNote(content)
     }
 
     return (
@@ -20,4 +19,7 @@ const NewNote = () => {
     )
 }
 
-export default NewNote
+const mapDispatchToProps = { createNote }
+// export default NewNote
+export default connect(null, mapDispatchToProps)(NewNote)//Since the component does not need to access the store's state,
+//export default connect(null, { createNote })(NewNote)//we can simply pass null as the first parameter to connect
