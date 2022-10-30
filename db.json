@@ -24,6 +24,16 @@
       "content": "create new",
       "important": false,
       "id": 5
+    },
+    {
+      "content": "createNew props with non props",
+      "important": false,
+      "id": 6
+    },
+    {
+      "content": "see add function",
+      "important": false,
+      "id": 7
     }
   ]
 }

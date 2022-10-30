@@ -5,10 +5,6 @@ const noteSlice = createSlice({
     name: 'notes',
     initialState: [],
     reducers: {
-        // createNote(state, action) {
-        //     const newNote = action.payload
-        //     state.push(newNote)
-        // },
         toggleImportanceOf(state, action) {
             const id = action.payload
             const noteToChange = state.find(n => n.id === id)
