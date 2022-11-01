@@ -1,6 +1,16 @@
 import ReactDOM from 'react-dom/client'
 import { useState } from 'react'
 
+// import {
+//     BrowserRouter as Router,
+//     Routes,
+//     Route,
+//     Link,
+//     Navigate,
+//     useNavigate,
+//     useMatch,
+// } from "react-router-dom"
+
 import {
     BrowserRouter as Router,
     Routes,
@@ -9,8 +19,8 @@ import {
     Navigate,
     useParams,
     useNavigate,
+    useMatch
 } from "react-router-dom"
-
 
 const Home = () => (
     <div>
@@ -19,20 +29,30 @@ const Home = () => (
     </div>
 )
 
-const Note = ({ notes }) => {
-    // The useParams hook returns an object of key/value pairs of the dynamic params from the current URL that were matched by the <Route path>.
-    const obj = useParams()
-    console.log("useParams(): ", obj) //// {id: '1'} or {id: '2'}
-    const id = useParams().id
-    // Number(value) converts a string or other value to the Number type
-    const note = notes.find(n => n.id === Number(id))
-    return (
-        <div>
-            <h2>{note.content}</h2>
-            <div>{note.user}</div>
-            <div><strong>{note.important ? 'important' : ''}</strong></div>
-        </div>
-    )
+// const Note = ({ notes }) => {
+//     // The useParams hook returns an object of key/value pairs of the dynamic params from the current URL that were matched by the <Route path>.
+//     // const obj = useParams()
+//     // console.log("useParams(): ", obj) //// {id: '1'} or {id: '2'}
+//     const id = useParams().id
+//     // Number(value) converts a string or other value to the Number type
+//     const note = notes.find(n => n.id === Number(id))
+//     return (
+//         <div>
+//             <h2>{note.content}</h2>
+//             <div>{note.user}</div>
+//             <div><strong>{note.important ? 'important' : ''}</strong></div>
+//         </div>
+//     )
+// }
+
+//below the version using useMatch():
+const Note = ({ note }) => {
+    <div>
+        <h2>{note.content}</h2>
+        <div>{note.user}</div>
+        <div><strong>{note.important ? 'important' : ''}</strong></div>
+    </div>
+
 }
 //clicking the name of a note whose id is 3 would trigger an event that changes the address of the browser into notes/3:
 const Notes = ({ notes }) => (
@@ -112,25 +132,26 @@ const App = () => {
     const padding = {
         padding: 5
     }
+    //useMatch() may be used only in the context of a <Router> component.
+    const match = useMatch('/notes/:id')
+    const note = match ? notes.find(n => n.id === Number(match.params.id)) : null
 
     return (
         <div>
-            <Router>
-                <div>
-                    <Link style={padding} to="/">home</Link>
-                    <Link style={padding} to="/notes">notes</Link>
-                    <Link style={padding} to="/users">users</Link>
-                    {user ? <em>{user} logged in</em> : <Link style={padding} to="/login">login</Link>}
-                </div>
-                {/* define parameterized urls in the routing in App component as follows: */}
-                <Routes>
-                    <Route path="/notes/:id" element={<Note notes={notes} />} />
-                    <Route path="/notes" element={<Notes notes={notes} />} />
-                    <Route path="/users" element={user ? <Users /> : <Navigate replace to="/login" />} />
-                    <Route path="/login" element={<Login onLogin={login} />} />
-                    <Route path="/" element={<Home />} />
-                </Routes>
-            </Router>
+            <div>
+                <Link style={padding} to="/">home</Link>
+                <Link style={padding} to="/notes">notes</Link>
+                <Link style={padding} to="/users">users</Link>
+                {user ? <em>{user} logged in</em> : <Link style={padding} to="/login">login</Link>}
+            </div>
+            {/* define parameterized urls in the routing in App component as follows: */}
+            <Routes>
+                <Route path="/notes/:id" element={<Note notes={note} />} />
+                <Route path="/notes" element={<Notes notes={notes} />} />
+                <Route path="/users" element={user ? <Users /> : <Navigate replace to="/login" />} />
+                <Route path="/login" element={<Login onLogin={login} />} />
+                <Route path="/" element={<Home />} />
+            </Routes>
             <div>
                 <br />
                 <em>Note app, Department of Computer Science 2022</em>
@@ -142,4 +163,8 @@ const App = () => {
     )
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+ReactDOM.createRoot(document.getElementById('root')).render(
+    <Router>
+        <App />
+    </Router>
+)
