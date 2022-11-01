@@ -1,64 +1,145 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import reportWebVitals from './reportWebVitals';
-import { Provider } from 'react-redux'
-import App from './App';
-import rootStore from './store'
-// import { createStore } from 'redux';
-// import { allReducers } from './reducers/index'
-// import { configureStore } from '@reduxjs/toolkit';
-// import noteReducer, { appendNotes, setNotes } from './reducers/noteReducer'
-// import { filterReducer } from "./reducers/filterReducer";
-// import noteService from "./services/noteService"
+import ReactDOM from 'react-dom/client'
+import { useState } from 'react'
 
-// console.log("getState via console.log: ", rootStore.getState())
-// rootStore.subscribe(() => console.log("getState via subscribe ", rootStore.getState()))
-// rootStore.dispatch(filterChange('IMPORTANT'))
-// rootStore.dispatch(createNote('combineReducers forms one reducer from many simple reducers'))
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    Link,
+    Navigate,
+    useParams,
+    useNavigate,
+} from "react-router-dom"
 
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const Home = () => (
+    <div>
+        <h2>TKTL notes app</h2>
+        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+    </div>
+)
 
-root.render(
-  <Provider store={rootStore} >
-    <App />
-  </Provider>
-);
-// const renderApp = () => {
-//   root.render(
+const Note = ({ notes }) => {
+    // The useParams hook returns an object of key/value pairs of the dynamic params from the current URL that were matched by the <Route path>.
+    const obj = useParams()
+    console.log("useParams(): ", obj) //// {id: '1'} or {id: '2'}
+    const id = useParams().id
+    // Number(value) converts a string or other value to the Number type
+    const note = notes.find(n => n.id === Number(id))
+    return (
+        <div>
+            <h2>{note.content}</h2>
+            <div>{note.user}</div>
+            <div><strong>{note.important ? 'important' : ''}</strong></div>
+        </div>
+    )
+}
+//clicking the name of a note whose id is 3 would trigger an event that changes the address of the browser into notes/3:
+const Notes = ({ notes }) => (
+    <div>
+        <h2>Notes</h2>
+        <ul>
+            {notes.map(note => <li key={note.id}> <Link to={`/notes/${note.id}`}>{note.content}</Link> </li>)}
+        </ul>
+    </div>
+)
 
-//     <React.StrictMode>
-//       <App />
-//     </React.StrictMode>
+const Users = () => (
+    <div>
+        <h2>TKTL notes app</h2>
+        <ul>
+            <li>Matti Luukkainen</li>
+            <li>Juha Tauriainen</li>
+            <li>Arto Hellas</li>
+        </ul>
+    </div>
+)
 
-//   )
-// }
+const Login = (props) => {
+    const navigate = useNavigate()
 
-// renderApp()
-// store.subscribe(renderApp)
-//   ;
+    const onSubmit = (event) => {
+        event.preventDefault()
+        props.onLogin('mluukkai')
+        // navigate to the Home page
+        navigate('/')
+    }
 
-//dispaly it in the console:
-// const consoleState = () => {
-//   const storeNow = store.getState()
-//   console.log(storeNow)
-// }
-// store.subscribe(consoleState)
+    return (
+        <div>
+            <h2>login</h2>
+            <form onSubmit={onSubmit}>
+                <div>
+                    username: <input />
+                </div>
+                <div>
+                    password: <input type='password' />
+                </div>
+                <button type="submit">login</button>
+            </form>
+        </div>
+    )
+}
 
-// store.subscribe(() => {
-//   const storeNow = store.getState()
-//   console.log(storeNow)
-// })
-// const root = ReactDOM.createRoot(document.getElementById('root'));
+const App = () => {
+    const [notes, setNotes] = useState([
+        {
+            id: 1,
+            content: 'HTML is easy',
+            important: true,
+            user: 'Matti Luukkainen'
+        },
+        {
+            id: 2,
+            content: 'Browser can execute only JavaScript',
+            important: false,
+            user: 'Matti Luukkainen'
+        },
+        {
+            id: 3,
+            content: 'Most important methods of HTTP-protocol are GET and POST',
+            important: true,
+            user: 'Arto Hellas'
+        }
+    ])
 
-// root.render(
-//   <React.StrictMode>
-//     <App />
-//   </React.StrictMode>
-// );
+    const [user, setUser] = useState(null)
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+    const login = (user) => {
+        setUser(user)
+    }
+
+    const padding = {
+        padding: 5
+    }
+
+    return (
+        <div>
+            <Router>
+                <div>
+                    <Link style={padding} to="/">home</Link>
+                    <Link style={padding} to="/notes">notes</Link>
+                    <Link style={padding} to="/users">users</Link>
+                    {user ? <em>{user} logged in</em> : <Link style={padding} to="/login">login</Link>}
+                </div>
+                {/* define parameterized urls in the routing in App component as follows: */}
+                <Routes>
+                    <Route path="/notes/:id" element={<Note notes={notes} />} />
+                    <Route path="/notes" element={<Notes notes={notes} />} />
+                    <Route path="/users" element={user ? <Users /> : <Navigate replace to="/login" />} />
+                    <Route path="/login" element={<Login onLogin={login} />} />
+                    <Route path="/" element={<Home />} />
+                </Routes>
+            </Router>
+            <div>
+                <br />
+                <em>Note app, Department of Computer Science 2022</em>
+                <p>
+                    In HTML 5, what was previously called <em>block-level</em> content is now called <em>flow</em> content.
+                </p>
+            </div>
+        </div>
+    )
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />)
