@@ -6,13 +6,8 @@ import Notes from './components/Notes';
 import VisibilityFilter from './components/VisibilityFilter';
 import { useDispatch } from 'react-redux';
 import { initializeNotes } from './reducers/noteReducer';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-
-//App component--> should move to the file App.js
-
-// noteService.getAll().then(notes => notes.forEach(note => { rootStore.dispatch(appendNotes(note)) }))
-
-// noteService.getAll().then(notes => rootStore.dispatch(setNotes(notes)))
 
 const App = () => {
   // useEffect(() => {
@@ -25,13 +20,31 @@ const App = () => {
   useEffect(() => {
     dispatch(initializeNotes())
   }, [dispatch])
-
+  const padding = {
+    padding: 5
+  }
   return (
-    <div>
-      <NewNote />
+    <Router>
+
+      <div>
+        {/* <Link style={padding} to="/">home</Link> */}
+        <Link style={padding} to="/notes">notes</Link>
+        <Link style={padding} to="/newnotes">New notes</Link>
+      </div>
       <VisibilityFilter />
-      <Notes />
-    </div>
+      <Routes>
+        <Route path="/notes" element={<Notes />}></Route>
+        <Route path="/newnotes" element={<NewNote />}></Route>
+        {/* <Route path="/home" element={<Home />}></Route> */}
+      </Routes>
+
+      <div>
+        <i>Note app, Department of Computer Science 2022</i>
+      </div>
+
+
+
+    </Router>
   )
 }
 
