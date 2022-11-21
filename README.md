@@ -1,3 +1,7 @@
+# Note on this repo
+
+This Repo is used for practice the course content in Full Stack Open (https://fullstackopen.com/)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
