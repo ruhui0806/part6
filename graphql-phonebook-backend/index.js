@@ -48,8 +48,8 @@ const resolvers = {
     },
 
     Mutation: {
-        addPerson: (root, { name }) => {
-            if (persons.find((p) => p.name === name)) {
+        addPerson: (root, args) => {
+            if (persons.find((p) => p.name === args.name)) {
                 throw new UserInputError('Name already exists', {
                     invalidArgs: args.name,
                 })
@@ -59,8 +59,8 @@ const resolvers = {
             return newPerson
         },
 
-        editNumber: (root, { name }) => {
-            const person = persons.find((p) => p.name === name)
+        editNumber: (root, args) => {
+            const person = persons.find((p) => p.name === arg.name)
             if (!person) {
                 return null
             }
