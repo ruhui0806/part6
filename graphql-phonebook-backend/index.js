@@ -20,6 +20,15 @@ const typeDefs = gql`
         personCount: Int!
         findPerson(name: String): Person!
     }
+    type Mutation {
+        addPerson(
+            name: String!
+            phone: String
+            street: String!
+            city: String!
+        ): Person
+        editNumber(name: String!, phone: String!): Person
+    }
 `
 
 const resolvers = {
