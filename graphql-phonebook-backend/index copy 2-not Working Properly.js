@@ -1,48 +1,24 @@
 const { ApolloServer, UserInputError, gql } = require('apollo-server')
 const { v1: uuid } = require('uuid')
-
-let persons = [
-    {
-        name: 'Arto Hellas',
-        phone: '040-123543',
-        street: 'Tapiolankatu 5 A',
-        city: 'Espoo',
-        id: '3d594650-3436-11e9-bc57-8b80ba54c431',
-    },
-    {
-        name: 'Matti Luukkainen',
-        phone: '040-432342',
-        street: 'Malminkaari 10 A',
-        city: 'Helsinki',
-        id: '3d599470-3436-11e9-bc57-8b80ba54c431',
-    },
-    {
-        name: 'Venla Ruuska',
-        street: 'Nallemäentie 22 C',
-        city: 'Helsinki',
-        id: '3d599471-3436-11e9-bc57-8b80ba54c431',
-    },
-]
+const { persons } = require('./dataExample')
 
 const typeDefs = gql`
     type Address {
         street: String!
         city: String!
     }
+
     type Person {
+        id: ID!
         name: String!
         phone: String
         address: Address!
-        id: ID!
     }
-    enum YesNo {
-        YES
-        NO
-    }
+
     type Query {
+        allPersons: [Person!]!
         personCount: Int!
-        allPersons(phone: YesNo): [Person!]!
-        findPerson(name: String!): Person
+        findPerson(name: String): Person!
     }
     type Mutation {
         addPerson(
@@ -56,44 +32,47 @@ const typeDefs = gql`
 `
 
 const resolvers = {
-    Query: {
-        personCount: () => persons.length,
-        allPersons: (root, args) => {
-            if (!args.phone) {
-                return persons
-            }
-            const byPhone = (person) =>
-                args.phone === 'YES' ? person.phone : !person.phone
-            return persons.filter(byPhone)
-        },
-        findPerson: (root, args) => persons.find((p) => p.name === args.name),
-    },
     Person: {
-        address: ({ street, city }) => {
+        id: (root) => root.id,
+        name: (root) => root.name,
+        phone: (root) => root.phone,
+        address: (root) => {
             return {
-                street,
-                city,
+                street: root.street,
+                city: root.city,
             }
         },
     },
+
+    Query: {
+        allPersons: (root, args) => {
+            return persons
+        },
+        personCount: (root, args) => {
+            return persons.length
+        },
+        findPerson: (root, { name }) => {
+            return persons.find((person) => person.name === name)
+        },
+    },
+
     Mutation: {
         addPerson: (root, args) => {
             if (persons.find((p) => p.name === args.name)) {
-                throw new UserInputError('Name must be unique', {
+                throw new UserInputError('Name already exists', {
                     invalidArgs: args.name,
                 })
             }
-
-            const person = { ...args, id: uuid() }
-            persons = persons.concat(person)
-            return person
+            const newPerson = { ...args, id: uuid() }
+            persons.concat(newPerson)
+            return newPerson
         },
+
         editNumber: (root, args) => {
-            const person = persons.find((p) => p.name === args.name)
+            const person = persons.find((p) => p.name === arg.name)
             if (!person) {
                 return null
             }
-
             const updatedPerson = { ...person, phone: args.phone }
             persons = persons.map((p) =>
                 p.name === args.name ? updatedPerson : p
@@ -109,5 +88,5 @@ const server = new ApolloServer({
 })
 
 server.listen().then(({ url }) => {
-    console.log(`Server ready at ${url}`)
+    console.log(`listening on ${url}`)
 })
