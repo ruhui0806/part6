@@ -1,17 +1,30 @@
 const {
     ApolloServer,
-    gql,
     UserInputError,
     AuthenticationError,
+    gql,
 } = require('apollo-server')
-
+const jwt = require('jsonwebtoken')
 const connectDB = require('./mongo')
+const JWT_SECRET = 'NEED_HERE_A_SECRET_KEY'
+
+const mongoose = require('mongoose')
 const Person = require('./models/personSchema')
 const User = require('./models/userSchema')
-const jwt = require('jsonwebtoken')
-//default scalar types: Int, Float, String, Boolean, ID
-const JWT_SECRET = 'THIS_IS_THE_SECRET'
+
+// const MONGODB_URI = 'mongodb+srv://urlhere'
 connectDB()
+// console.log('connecting to', MONGODB_URI)
+
+// mongoose
+//     .connect(MONGODB_URI)
+//     .then(() => {
+//         console.log('connected to MongoDB')
+//     })
+//     .catch((error) => {
+//         console.log('error connection to MongoDB:', error.message)
+//     })
+
 const typeDefs = gql`
     type User {
         username: String!
@@ -31,17 +44,15 @@ const typeDefs = gql`
         address: Address!
         id: ID!
     }
-
-    enum YESNO {
+    enum YesNo {
         YES
         NO
     }
     type Query {
         personCount: Int!
-        allPersons(phone: YESNO): [Person!]!
+        allPersons(phone: YesNo): [Person!]!
         findPerson(name: String!): Person
         me: User
-        allUsers: [User!]!
     }
     type Mutation {
         addPerson(
@@ -58,14 +69,21 @@ const typeDefs = gql`
 `
 
 const resolvers = {
-    Address: {
-        street: (root) => root.street,
-        city: (root) => root.city,
+    Query: {
+        personCount: async () => Person.collection.countDocuments(),
+        allPersons: async (root, args) => {
+            if (!args.phone) {
+                return Person.find({})
+            }
+
+            return Person.find({ phone: { $exists: args.phone === 'YES' } })
+        },
+        findPerson: async (root, args) => Person.findOne({ name: args.name }),
+        me: (root, args, context) => {
+            return context.currentUser
+        },
     },
     Person: {
-        id: (root) => root.id,
-        name: (root) => root.name,
-        phone: (root) => root.phone,
         address: (root) => {
             return {
                 street: root.street,
@@ -73,29 +91,14 @@ const resolvers = {
             }
         },
     },
-    Query: {
-        me: async (root, args, context) => {
-            console.log('current user: ', context.currentUser)
-            return context.currentUser
-        },
-        personCount: async () => Person.collection.countDocuments(),
-        allPersons: async (root, args) => {
-            if (!args.phone) {
-                return Person.find({})
-            }
-            // $exists
-            // Syntax: { field: { $exists: <boolean> } }
-            return Person.find({ phone: { $exists: args.phone === 'YES' } })
-        },
-        findPerson: (root, args) => Person.findOne({ name: args.name }),
-        allUsers: async (root, args) => User.find({}),
-    },
     Mutation: {
         addPerson: async (root, args, context) => {
             const currentUser = context.currentUser
+
             if (!currentUser) {
                 throw new AuthenticationError('not authenticated')
             }
+
             const person = new Person({ ...args })
             try {
                 await person.save()
@@ -106,17 +109,25 @@ const resolvers = {
                     invalidArgs: args,
                 })
             }
+
             return person
         },
         editNumber: async (root, args) => {
-            const filter = { name: args.name }
-            const update = { phone: args.phone }
-            const person = await Person.findOneAndUpdate(filter, update, {
-                new: true,
-            })
+            const person = await Person.findOne({ name: args.name })
+            person.phone = args.phone
+
+            try {
+                await person.save()
+            } catch (error) {
+                throw new UserInputError(error.message, {
+                    invalidArgs: args,
+                })
+            }
+            return person.save()
         },
         createUser: async (root, args) => {
-            const user = await new User({ username: args.username })
+            const user = new User({ username: args.username })
+
             return user.save().catch((error) => {
                 throw new UserInputError(error.message, {
                     invalidArgs: args,
@@ -138,21 +149,22 @@ const resolvers = {
             return { value: jwt.sign(userForToken, JWT_SECRET) }
         },
         addAsFriend: async (root, args, { currentUser }) => {
-            const isFriend = (person) => {
-                currentUser.friends.map((f) =>
-                    f._id.toString().includes(person._id.toString())
-                )
-            }
+            const nonFriendAlready = (person) =>
+                !currentUser.friends
+                    .map((f) => f._id.toString())
+                    .includes(person._id.toString())
+
             if (!currentUser) {
                 throw new AuthenticationError('not authenticated')
             }
-            const person = await Person.findOne({ name: args.name })
 
-            if (!isFriend(person)) {
-                console.log('is friend or not?: ', !isFriend(person))
+            const person = await Person.findOne({ name: args.name })
+            if (nonFriendAlready(person)) {
                 currentUser.friends = currentUser.friends.concat(person)
             }
+
             await currentUser.save()
+
             return currentUser
         },
     },
@@ -162,17 +174,12 @@ const server = new ApolloServer({
     typeDefs,
     resolvers,
     context: async ({ req }) => {
-        console.log('request: ' + req)
-        console.log('token: ' + req.headers)
         const auth = req ? req.headers.authorization : null
-        console.log('token: ' + req.headers.authorization)
         if (auth && auth.toLowerCase().startsWith('bearer ')) {
             const decodedToken = jwt.verify(auth.substring(7), JWT_SECRET)
             const currentUser = await User.findById(decodedToken.id).populate(
                 'friends'
             )
-            req.user = currentUser
-            console.log('request.user: ', req.user)
             return { currentUser }
         }
     },
