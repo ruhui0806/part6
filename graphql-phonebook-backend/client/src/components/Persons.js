@@ -3,19 +3,6 @@ import Person from './Person'
 import { FIND_PERSON } from '../queries'
 import { useQuery, gql } from '@apollo/client'
 
-// const FIND_PERSON = gql`
-//     query findPersonByName($nameToSearch: String!) {
-//         findPerson(name: $nameToSearch) {
-//             name
-//             phone
-//             id
-//             address {
-//                 street
-//                 city
-//             }
-//         }
-//     }
-// `
 const Persons = ({ persons }) => {
     const [nameToSearch, setNameToSearch] = useState(null)
     const result = useQuery(FIND_PERSON, {

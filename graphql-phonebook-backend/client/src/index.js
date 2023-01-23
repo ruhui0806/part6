@@ -9,12 +9,23 @@ import {
     InMemoryCache,
     ApolloProvider,
 } from '@apollo/client'
+import { setContext } from '@apollo/client/link/context'
+
+const authLink = setContext((_, { headers }) => {
+    //localstorage item is setted in the loginForm
+    const token = localStorage.getItem('phonenumbers-user-token')
+    return {
+        headers: {
+            ...headers,
+            authorization: token ? `bearer ${token}` : null,
+        },
+    }
+})
+const httpLink = new HttpLink({ uri: 'http://localhost:4000' })
 
 const client = new ApolloClient({
     cache: new InMemoryCache(),
-    link: new HttpLink({
-        uri: 'http://localhost:4000',
-    }),
+    link: authLink.concat(httpLink),
 })
 
 ReactDOM.createRoot(document.getElementById('root')).render(

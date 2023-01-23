@@ -9,19 +9,42 @@ const PersonForm = ({ setError }) => {
     const [city, setCity] = useState('')
 
     const [createPerson] = useMutation(CREATE_PERSON, {
-        refetchQueries: [{ query: ALL_PERSONS }],
         onError: (error) => {
             setError(error.graphQLErrors[0].message)
         },
+        // // refetchQueries: [{ query: ALL_PERSONS }],
+        // update(cache, { data: { createPerson } }) {
+        //     const { allPersons } = cache.readQuery({ query: ALL_PERSONS })
+        //     cache.writeQuery({
+        //         query: ALL_PERSONS,
+        //         data: { allPersons: [...allPersons, createPerson] },
+        //     })
+        // },
+        //As a convenience, you can use cache.updateQuery or cache.updateFragment to
+        //combine reading and writing cached data with a single method call
+        //
+        update: (cache, response) => {
+            cache.updateQuery({ query: ALL_PERSONS }, ({ allPersons }) => {
+                return {
+                    allPersons: allPersons.concat(response.data.addPerson),
+                }
+            })
+        },
     })
-
     const submit = (event) => {
         event.preventDefault()
         if (!name || !street || !city) {
             setError('Please fill in all fields')
             return alert('Please fill in all fields')
         }
-        createPerson({ variables: { name, phone, street, city } })
+        createPerson({
+            variables: {
+                name,
+                street,
+                city,
+                phone: phone.length > 0 ? phone : undefined,
+            },
+        })
 
         setName('')
         setPhone('')
