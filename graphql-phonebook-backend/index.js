@@ -22,7 +22,7 @@ connectDB()
 //references:
 // https://www.apollographql.com/docs/apollo-server/api/express-middleware
 // https://www.apollographql.com/docs/apollo-server/data/subscriptions/
-
+//https://www.apollographql.com/docs/apollo-server/migration/#migrate-from-apollo-server-express
 const start = async () => {
     const app = express()
     const httpServer = http.createServer(app)
