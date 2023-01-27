@@ -1,25 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useMutation } from '@apollo/client'
 
-import { ALL_PERSONS, EDIT_NUMBER } from '../queries'
+import { EDIT_NUMBER } from '../queries'
 
 const PhoneForm = ({ setError }) => {
     const [name, setName] = useState('')
     const [phone, setPhone] = useState('')
 
-    const [changeNumber, result] = useMutation(EDIT_NUMBER, {
-        refetchQueries: [{ query: ALL_PERSONS }],
-        onError: (error) => {
-            setError(error.graphqlErrors[0].message)
-        },
-        // update: (cache, response) => {
-        //     cache.updateQuery({ query: ALL_PERSONS }, ({ allPersons }) => {
-        //         return {
-        //             allPersons: allPersons.concat(response.data.editNumber),
-        //         }
-        //     })
-        // },
-    })
+    const [changeNumber, result] = useMutation(EDIT_NUMBER)
 
     const submit = (event) => {
         event.preventDefault()
@@ -30,11 +18,10 @@ const PhoneForm = ({ setError }) => {
         setPhone('')
     }
     useEffect(() => {
-        if (result.data.editNumber === null) {
+        if (result.data && result.data.editNumber === null) {
             setError('person not found')
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [result.data])
+    }, [result.data]) // eslint-disable-line
 
     return (
         <div>

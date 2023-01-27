@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken')
 const { PubSub } = require('graphql-subscriptions')
 const pubsub = new PubSub()
 const JWT_SECRET = 'THIS_IS_THE_SECRET'
+
 const resolvers = {
     Address: {
         street: (root) => root.street,
@@ -22,6 +23,11 @@ const resolvers = {
                 city: root.city,
             }
         },
+        // friendOf: async (root) => {
+        //     const friends = await User.find({ friends: { $in: [root._id] } })
+        //     return friends
+        //     //{ field: { $in: [<value1>, <value2>, ... <valueN> ] } }
+        // },
     },
     Query: {
         me: async (root, args, context) => {
@@ -31,11 +37,13 @@ const resolvers = {
         personCount: async () => Person.collection.countDocuments(),
         allPersons: async (root, args) => {
             if (!args.phone) {
-                return Person.find({})
+                return Person.find({}).populate('friendsOf')
             }
             // $exists
             // Syntax: { field: { $exists: <boolean> } }
-            return Person.find({ phone: { $exists: args.phone === 'YES' } })
+            return Person.find({
+                phone: { $exists: args.phone === 'YES' },
+            }).populate('friendsOf')
         },
         findPerson: (root, args) => Person.findOne({ name: args.name }),
         allUsers: async (root, args) => User.find({}),

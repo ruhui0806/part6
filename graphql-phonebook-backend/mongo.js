@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 
-mongoose.set('strictQuery', true)
 // mongoose
 //     .connect(MONGODB_URI)
 //     .then(() => {
@@ -9,6 +8,8 @@ mongoose.set('strictQuery', true)
 //     .catch((error) => {
 //         console.log('error connection to MongoDB:', error.message)
 //     })
+mongoose.set('strictQuery', true)
+mongoose.set('debug', true)
 const connectDB = async () => {
     try {
         const connection = await mongoose.connect(

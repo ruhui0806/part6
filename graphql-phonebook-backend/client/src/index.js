@@ -8,8 +8,14 @@ import {
     HttpLink,
     InMemoryCache,
     ApolloProvider,
+    split,
 } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
+
+//add the following funcs for confguration:
+import { getMainDefinition } from '@apollo/client/utilities'
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
+import { createClient } from 'graphql-ws'
 
 const authLink = setContext((_, { headers }) => {
     //localstorage item is setted in the loginForm
@@ -21,11 +27,30 @@ const authLink = setContext((_, { headers }) => {
         },
     }
 })
-const httpLink = new HttpLink({ uri: 'http://localhost:4000' })
+const httpLink = new HttpLink({ uri: 'http://localhost:4000/graphql' })
 
+//get the websocket link:
+const wsLink = new GraphQLWsLink(
+    createClient({
+        url: 'ws://localhost:4000/graphql',
+    })
+)
+
+const splitLink = split(
+    ({ query }) => {
+        const definition = getMainDefinition(query)
+        return (
+            definition.kind === 'OperationDefinition' &&
+            definition.operation === 'subscription'
+        )
+    },
+    wsLink,
+    authLink.concat(httpLink)
+)
 const client = new ApolloClient({
     cache: new InMemoryCache(),
-    link: authLink.concat(httpLink),
+    // link: authLink.concat(httpLink),
+    link: splitLink,
 })
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -34,14 +59,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ApolloProvider>
 )
 
-// const root = ReactDOM.createRoot(document.getElementById('root'))
-// root.render(
-//     <ApolloProvider client={client}>
-//         <App />
-//     </ApolloProvider>
-// )
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals()
+
+// configuring the apollo client cache:
+//https://www.apollographql.com/docs/react/caching/cache-configuration
+
+// setup subscriptions on client side:
+// https://www.apollographql.com/docs/react/data/subscriptions/

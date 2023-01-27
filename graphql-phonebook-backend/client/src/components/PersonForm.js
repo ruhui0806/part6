@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation } from '@apollo/client'
 import { CREATE_PERSON, ALL_PERSONS } from '../queries'
+import updateCache from '../functions/updateCache'
 
 const PersonForm = ({ setError }) => {
     const [name, setName] = useState('')
@@ -11,6 +12,14 @@ const PersonForm = ({ setError }) => {
     const [createPerson] = useMutation(CREATE_PERSON, {
         onError: (error) => {
             setError(error.graphQLErrors[0].message)
+        },
+        update: (cache, response) => {
+            updateCache(cache, { query: ALL_PERSONS }, response.data.addPerson)
+            // cache.updateQuery({ query: ALL_PERSONS }, ({ allPersons }) => {
+            //     return {
+            //         allPersons: allPersons.concat(response.data.addPerson),
+            //     }
+            // })
         },
         // // refetchQueries: [{ query: ALL_PERSONS }],
         // update(cache, { data: { createPerson } }) {
@@ -23,13 +32,6 @@ const PersonForm = ({ setError }) => {
         //As a convenience, you can use cache.updateQuery or cache.updateFragment to
         //combine reading and writing cached data with a single method call
         //
-        update: (cache, response) => {
-            cache.updateQuery({ query: ALL_PERSONS }, ({ allPersons }) => {
-                return {
-                    allPersons: allPersons.concat(response.data.addPerson),
-                }
-            })
-        },
     })
     const submit = (event) => {
         event.preventDefault()

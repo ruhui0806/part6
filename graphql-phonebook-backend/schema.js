@@ -19,6 +19,7 @@ const typeDefs = gql`
         phone: String
         address: Address!
         id: ID!
+        friendOf: [User!]!
     }
 
     enum YESNO {

@@ -68,4 +68,19 @@ const EDIT_NUMBER = gql`
         }
     }
 `
-export { FIND_PERSON, CREATE_PERSON, ALL_PERSONS, LOGIN, EDIT_NUMBER }
+const PERSON_ADDED = gql`
+    subscription {
+        personAdded {
+            ...PersonDetails
+        }
+    }
+    ${PERSON_DETAILS}
+`
+export {
+    FIND_PERSON,
+    CREATE_PERSON,
+    ALL_PERSONS,
+    LOGIN,
+    EDIT_NUMBER,
+    PERSON_ADDED,
+}
