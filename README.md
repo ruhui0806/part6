@@ -1,7 +1,7 @@
 # This repo is used for practicing the course example materials in Full Stack Open.
 # 27.01.2023: All the course materials and exercises in part8 have accomplished. Exercises saved in a different repo (part8) are ready for submission.
 
-# Getting Started with Create React App
+### Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
