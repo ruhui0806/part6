@@ -74,8 +74,10 @@ const start = async () => {
     })
 
     await server.start()
+    //reference: https://www.apollographql.com/docs/apollo-server/v3/integrations/middleware/
     server.applyMiddleware({ app, path: '/graphql' })
 
+    //code in the below line is the code for apollo server 4, but here we use apollo server 3,
     // app.use(
     //     '/',
     //     cors(),
